@@ -1,1 +1,1118 @@
-CONNECTION ERROR
+
+Building configuration...
+
+
+  
+  
+
+
+Current configuration : 26692 bytes
+!
+! Last configuration change at 08:49:52 CST Fri Feb 19 2021 by sentbbronkow
+! NVRAM config last updated at 08:50:03 CST Fri Feb 19 2021 by sentbbronkow
+!
+version 15.6
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone year
+service timestamps log datetime msec localtime show-timezone year
+service password-encryption
+service sequence-numbers
+!
+hostname ALSIP-RTR1
+!
+boot-start-marker
+boot system flash0:/c2900-universalk9-mz.SPA.156-3.M4.bin
+boot system flash0:/c2900-universalk9-mz.SPA.156-2.T.bin
+boot-end-marker
+!
+!
+card type t1 0 2
+logging buffered 51200 warnings
+enable secret 5 $1$ZAd8$p1N8nFp9sKSLXyp51xH1H0
+!
+aaa new-model
+!
+!
+aaa group server tacacs+ TAC_PLUS
+ server name ACS1
+ server name ACS2
+!
+aaa authentication login default group tacacs+ local
+aaa authentication enable default group tacacs+ enable
+aaa authorization exec default group tacacs+ local if-authenticated 
+aaa authorization commands 0 default group tacacs+ local 
+aaa authorization commands 1 default group tacacs+ local 
+aaa authorization commands 15 default group tacacs+ local 
+aaa accounting commands 0 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 1 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 15 default
+ action-type start-stop
+ group tacacs+
+!
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone CST -6 0
+clock summer-time CDT recurring
+no network-clock-participate wic 2 
+!
+!
+!
+!
+!
+!
+ip arp gratuitous none
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+no ip dhcp use vrf connected
+ip dhcp excluded-address 10.114.101.1 10.114.101.9
+!
+ip dhcp pool VOIP
+ network 10.114.101.0 255.255.255.0
+ default-router 10.114.101.1 
+ option 150 ip 10.197.199.10 
+ dns-server 10.197.1.101 10.109.1.83 
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name fmbi.org
+ip cef
+no ipv6 cef
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-3629068809
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3629068809
+ revocation-check none
+ rsakeypair TP-self-signed-3629068809
+!
+!
+crypto pki certificate chain TP-self-signed-3629068809
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33363239 30363838 3039301E 170D3133 30353231 30353133 
+  30335A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 36323930 
+  36383830 3930819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100BAC9 4AD53AF1 17BF8EBC 91E50309 C5E784FC 476D573A E84C888B E008620E 
+  371C122B 86BE1019 D2FE9010 C3F80F3F 668E89EE 6987C46C F778CF0D C4777E70 
+  B14FDDBB 1DAC4E9B 1700CF0A EC6C4691 2E43A3EC 1655762D DD5FAAC0 82801891 
+  89BA723A A42555F6 DC7338FA D7B7629C 05379ADA 14244BA3 327362B7 9A417338 
+  C7410203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14793E0F F23A9738 166059EC FD4C66C8 AE6428F2 0C301D06 
+  03551D0E 04160414 793E0FF2 3A973816 6059ECFD 4C66C8AE 6428F20C 300D0609 
+  2A864886 F70D0101 05050003 81810074 544CBFDB E7AC9B01 5EFA04B4 B80B54C1 
+  73AD90E8 3A30F736 6AFE53A9 0EC7B5D8 950A9A98 14BBFA7E B6F1724D F1B8C5A3 
+  97E1F2A1 BF3F55B7 5F3CFF2C BB59A5CE 26325870 7723F8AF 7B02FF8C BD9E7EF4 
+  F3B6F6D0 525A3ABF 790F1490 0F533391 28167BC9 146E81CF 1CBBCC06 DCDA4CBE 
+  BC7947A7 A65406EA 24210705 855B62
+  	quit
+voice-card 0
+!
+!
+!
+voice service voip
+ allow-connections h323 to h323
+ allow-connections h323 to sip
+ allow-connections sip to h323
+ allow-connections sip to sip
+ fax protocol t38 version 0 ls-redundancy 5 hs-redundancy 2 fallback pass-through g711ulaw
+ modem passthrough nse codec g711ulaw
+ h323
+  call preserve limit-media-detection
+ sip
+  bind control source-interface GigabitEthernet0/0.101
+  bind media source-interface GigabitEthernet0/0.101
+  registrar server expires max 120 min 60
+  early-offer forced
+  midcall-signaling passthru
+  g729 annexb-all
+!
+voice class codec 1
+ codec preference 1 g711ulaw
+ codec preference 2 g729r8
+!
+voice class h323 1
+  h225 timeout tcp establish 5
+!
+!
+!
+!
+voice register global
+ default mode
+ no allow-hash-in-dn
+ system message FMB Fallback Mode
+ max-dn 40
+ max-pool 20
+!
+voice register pool  1
+ id network 10.114.101.0 mask 255.255.255.0
+ application sip.app
+ dtmf-relay rtp-nte
+ codec g711ulaw
+!
+!
+!
+!
+!
+!
+application
+ global
+  service alternate Default
+ !
+!
+vxml logging-tag
+license udi pid CISCO2921/K9 sn FTX1721AJ79
+hw-module pvdm 0/0
+!
+hw-module sm 1
+!
+!
+!
+archive
+ log config
+  hidekeys
+object-group network ATM_LOCAL_HOSTS 
+ host 10.114.201.10
+!
+object-group network CHECKALT_ERAS_HOSTS 
+ host 208.87.15.16
+ host 12.42.142.30
+!
+object-group network DIEBOLD_ATM_MONITORING_HOSTS 
+ host 208.87.15.11
+ host 208.87.15.12
+ host 208.87.15.16
+ host 208.87.15.19
+ host 208.87.15.20
+ host 208.87.15.43
+ host 208.87.15.44
+ host 208.87.15.50
+ host 208.87.15.132
+ host 208.87.15.133
+ host 208.87.15.138
+ host 208.87.15.140
+!
+object-group network DIEBOLD_DNS_HOSTS 
+ host 208.87.15.50
+ host 208.87.15.138
+!
+object-group network DIEBOLD_ENDPOINT_PROTECTION_HOSTS 
+ host 208.87.15.20
+ host 208.87.15.24
+!
+object-group network DIEBOLD_ERAS_SW_DEPLOYMENT_HOSTS 
+ host 10.100.251.13
+!
+object-group network DIEBOLD_OPTEVIEW_HOSTS 
+ host 208.87.15.21
+!
+object-group network DIEBOLD_ORION_MONITORING_HOSTS 
+ host 208.87.15.11
+ host 208.87.15.12
+ host 208.87.15.140
+!
+object-group network DIEBOLD_SERVICE_VALIDATION_HOSTS 
+ host 208.87.15.19
+!
+object-group network DIEBOLD_SW_DEPLOYMENT_HOSTS 
+ host 208.87.15.43
+ host 208.87.15.44
+ host 208.87.15.132
+ host 208.87.15.133
+!
+object-group network DNS 
+ host 10.197.1.103
+ host 10.109.1.83
+!
+object-group network FIS_ATM_DRIVER_HOSTS 
+ host 199.38.140.118
+ host 199.38.140.119
+!
+object-group network FMB_LAN 
+ 10.0.0.0 255.0.0.0
+!
+object-group network InstantIssue 
+ host 10.197.1.170
+ host 10.197.1.171
+ host 10.197.1.172
+ host 10.197.1.173
+ host 10.197.1.174
+ host 10.197.1.175
+ host 10.109.1.120
+ host 10.109.1.121
+ host 10.109.1.122
+!
+object-group network QSI_DNS_HOSTS 
+ host 10.197.1.103
+ host 10.10.109.83
+!
+object-group network QSI_RMC_HOSTS 
+ 198.98.15.192 255.255.255.224
+ 67.215.220.96 255.255.255.224
+!
+object-group network VERIFONE 
+ host 204.8.249.125
+ host 8.28.72.193
+ host 63.107.202.167
+ host 67.134.222.54
+ host 152.178.31.7
+ host 152.178.39.7
+ host 152.178.42.71
+ host 152.178.55.39
+ host 206.175.128.7
+ host 207.108.146.54
+ host 208.224.248.192
+ host 205.171.2.65
+ host 205.171.3.65
+!
+username sentinel privilege 15 secret 5 $1$eytl$LMQfyURz86LW3ZXUVMIYe1
+!
+redundancy
+!
+!
+controller T1 0/2/0
+ cablelength long 0db
+ channel-group 0 timeslots 1-24
+!
+!
+class-map match-any INTERACTIVE-VIDEO
+ match ip dscp cs5 
+ match ip dscp cs4 
+ match ip dscp af41 
+ match ip dscp af42 
+ match ip dscp af43 
+class-map match-any CONTROL
+ match ip dscp cs6 
+ match ip dscp cs7 
+class-map match-any VOICE
+ match ip dscp ef 
+class-map match-any SIGNALING
+ match ip dscp cs3 
+!
+policy-map QOS-OUT
+ class VOICE
+  priority level 1 percent 30
+  queue-limit 512 packets
+ class INTERACTIVE-VIDEO
+  priority level 2 percent 40
+  queue-limit 512 packets
+ class SIGNALING
+  bandwidth remaining percent 5 
+  queue-limit 128 packets
+ class CONTROL
+  bandwidth remaining percent 5 
+  queue-limit 128 packets
+ class class-default
+  bandwidth remaining percent 20 
+  fair-queue
+policy-map WAN
+ class class-default
+  shape average 40000000   
+   service-policy QOS-OUT
+!
+!
+dlsw local-peer peer-id 10.255.252.163 lf 2052
+dlsw remote-peer 0 tcp 193.1.99.1
+dlsw remote-peer 0 tcp 193.1.99.2 backup-peer 193.1.99.1 linger 10
+dlsw bridge-group 1
+!
+!
+!
+interface Loopback0
+ description Premier Serve Management IP Address
+ ip address 10.255.252.163 255.255.255.255
+!
+interface Embedded-Service-Engine0/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0/0
+ description $ETH-LAN$$ETH-SW-LAUNCH$$INTF-INFO-GE 0/0$
+ no ip address
+ no ip proxy-arp
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/0.9
+ encapsulation dot1Q 9
+ ip address 10.114.9.1 255.255.255.0
+ ip helper-address 10.109.2.42
+ ip helper-address 10.100.2.230
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 10.114.1.1 255.255.255.0
+ ip helper-address 10.197.1.125
+ ip helper-address 10.109.1.125
+ ip helper-address 10.100.2.230
+ ip helper-address 10.109.2.42
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ bridge-group 1
+!
+interface GigabitEthernet0/0.101
+ encapsulation dot1Q 101
+ ip address 10.114.101.1 255.255.255.0
+ ip access-group VRESTRICT out
+ ip helper-address 10.100.2.230
+ ip helper-address 10.109.2.42
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ h323-gateway voip bind srcaddr 10.114.101.1
+!
+interface GigabitEthernet0/0.201
+ description ATM_VLAN
+ encapsulation dot1Q 201
+ ip address 10.114.201.1 255.255.255.0
+ ip access-group ATM_INBOUND_ACL in
+ ip access-group ATM_OUTBOUND_ACL out
+ ip helper-address 10.109.2.42
+ ip helper-address 10.100.2.230
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface GigabitEthernet0/0.205
+ encapsulation dot1Q 205
+ ip address 10.114.205.1 255.255.255.0
+ ip helper-address 10.197.1.125
+ ip helper-address 10.109.1.125
+ ip helper-address 10.100.2.230
+ ip helper-address 10.109.2.42
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface GigabitEthernet0/0.207
+ encapsulation dot1Q 207
+ ip address 10.114.207.1 255.255.255.248
+ ip access-group CASH_ADV in
+ ip helper-address 10.100.2.230
+ ip helper-address 10.109.2.42
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface GigabitEthernet0/0.212
+ description PHYSICAL-SERVERS
+ encapsulation dot1Q 212
+ ip address 10.114.212.1 255.255.255.240
+ ip helper-address 10.197.1.125
+ ip helper-address 10.109.1.125
+ ip helper-address 10.109.2.42
+ ip helper-address 10.100.2.230
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface GigabitEthernet0/1
+ description Comcast_22.KRGS.016658..CBCL../40_Meg
+ mtu 9000
+ bandwidth 40000
+ no ip address
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1.991
+ description Comcast_22.KRGS.016658..CBCL../40_Meg
+ bandwidth 40000
+ encapsulation dot1Q 991
+ ip address 10.255.251.89 255.255.255.0
+ ip access-group TFTP_BLOCK in
+ no ip proxy-arp
+ ip flow ingress
+ ip flow egress
+ ip summary-address eigrp 1 10.114.0.0 255.255.0.0
+ service-policy output WAN
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+!
+interface Serial0/2/0:0
+ no ip address
+ shutdown
+!
+interface ucse1/0
+ no ip address
+ shutdown
+ imc access-port dedicated
+!
+interface ucse1/1
+ description Internal switch interface connected to Service Module
+ no ip address
+!
+interface Vlan1
+ no ip address
+!
+!
+!
+router eigrp 1
+ network 10.114.1.1 0.0.0.0
+ network 10.114.9.1 0.0.0.0
+ network 10.114.101.1 0.0.0.0
+ network 10.114.201.1 0.0.0.0
+ network 10.114.205.1 0.0.0.0
+ network 10.114.207.1 0.0.0.0
+ network 10.114.212.1 0.0.0.0
+ network 10.255.251.0 0.0.0.255
+ network 10.255.252.163 0.0.0.0
+ passive-interface GigabitEthernet0/0.9
+ passive-interface GigabitEthernet0/0.205
+ passive-interface GigabitEthernet0/0.101
+ passive-interface GigabitEthernet0/0.10
+ passive-interface GigabitEthernet0/0.207
+ passive-interface GigabitEthernet0/0.201
+ passive-interface GigabitEthernet0/0.212
+ eigrp router-id 10.255.252.163
+ no eigrp log-neighbor-changes
+ no eigrp log-neighbor-warnings
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+ip flow-export source Loopback0
+ip flow-export version 5
+ip flow-top-talkers
+ top 10
+ sort-by bytes
+!
+ip tftp source-interface Loopback0
+ip tftp blocksize 1400
+ip tacacs source-interface Loopback0
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh version 2
+!
+ip access-list extended ATM_INBOUND_ACL
+ permit icmp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ATM_MONITORING_HOSTS echo
+ permit icmp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ATM_MONITORING_HOSTS echo-reply
+ permit udp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ORION_MONITORING_HOSTS eq snmp
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_SERVICE_VALIDATION_HOSTS eq 443
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_OPTEVIEW_HOSTS eq 5202
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_OPTEVIEW_HOSTS eq 8443
+ permit udp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_OPTEVIEW_HOSTS range snmp snmptrap
+ permit udp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_OPTEVIEW_HOSTS range 10161 10162
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ENDPOINT_PROTECTION_HOSTS eq www
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ENDPOINT_PROTECTION_HOSTS eq 443
+ permit icmp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ERAS_SW_DEPLOYMENT_HOSTS 0 8
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_ERAS_SW_DEPLOYMENT_HOSTS range 3464 3467
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_SW_DEPLOYMENT_HOSTS range 443 444
+ permit tcp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_SW_DEPLOYMENT_HOSTS range 3464 3467
+ permit udp object-group ATM_LOCAL_HOSTS object-group DIEBOLD_DNS_HOSTS eq domain
+ permit udp object-group ATM_LOCAL_HOSTS object-group QSI_DNS_HOSTS eq domain
+ permit tcp object-group ATM_LOCAL_HOSTS object-group QSI_RMC_HOSTS eq 6502
+ permit udp object-group ATM_LOCAL_HOSTS object-group QSI_RMC_HOSTS eq 6502
+ permit tcp object-group ATM_LOCAL_HOSTS object-group QSI_RMC_HOSTS eq www
+ permit tcp object-group ATM_LOCAL_HOSTS object-group QSI_RMC_HOSTS eq 443
+ permit tcp object-group ATM_LOCAL_HOSTS object-group FIS_ATM_DRIVER_HOSTS range 2000 2199
+ permit tcp object-group ATM_LOCAL_HOSTS object-group CHECKALT_ERAS_HOSTS eq 443
+ deny   ip any any
+ip access-list extended ATM_OUTBOUND_ACL
+ permit icmp object-group DIEBOLD_ATM_MONITORING_HOSTS object-group ATM_LOCAL_HOSTS echo
+ permit icmp object-group DIEBOLD_ATM_MONITORING_HOSTS object-group ATM_LOCAL_HOSTS echo-reply
+ permit udp object-group DIEBOLD_ORION_MONITORING_HOSTS eq snmp object-group ATM_LOCAL_HOSTS
+ permit udp object-group DIEBOLD_ORION_MONITORING_HOSTS object-group ATM_LOCAL_HOSTS eq snmp
+ permit tcp object-group DIEBOLD_SERVICE_VALIDATION_HOSTS eq 443 object-group ATM_LOCAL_HOSTS range 1024 65535
+ permit tcp object-group DIEBOLD_OPTEVIEW_HOSTS eq 5202 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group DIEBOLD_OPTEVIEW_HOSTS eq 8443 object-group ATM_LOCAL_HOSTS
+ permit udp object-group DIEBOLD_OPTEVIEW_HOSTS range snmp snmptrap object-group ATM_LOCAL_HOSTS
+ permit udp object-group DIEBOLD_OPTEVIEW_HOSTS range 10161 10162 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group DIEBOLD_ENDPOINT_PROTECTION_HOSTS eq www object-group ATM_LOCAL_HOSTS range 1024 65535
+ permit tcp object-group DIEBOLD_ENDPOINT_PROTECTION_HOSTS eq 443 object-group ATM_LOCAL_HOSTS range 1024 65535
+ permit icmp object-group DIEBOLD_ERAS_SW_DEPLOYMENT_HOSTS object-group ATM_LOCAL_HOSTS 0 8
+ permit tcp object-group DIEBOLD_ERAS_SW_DEPLOYMENT_HOSTS range 3464 3467 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group DIEBOLD_SW_DEPLOYMENT_HOSTS range 443 444 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group DIEBOLD_SW_DEPLOYMENT_HOSTS range 3464 3467 object-group ATM_LOCAL_HOSTS
+ permit udp object-group DIEBOLD_DNS_HOSTS eq domain object-group ATM_LOCAL_HOSTS
+ permit udp object-group QSI_DNS_HOSTS eq domain object-group ATM_LOCAL_HOSTS
+ permit tcp object-group QSI_RMC_HOSTS eq 6502 object-group ATM_LOCAL_HOSTS
+ permit udp object-group QSI_RMC_HOSTS eq 6502 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group QSI_RMC_HOSTS eq www object-group ATM_LOCAL_HOSTS
+ permit tcp object-group QSI_RMC_HOSTS eq 443 object-group ATM_LOCAL_HOSTS
+ permit tcp object-group FIS_ATM_DRIVER_HOSTS range 2000 2199 object-group ATM_LOCAL_HOSTS range 1024 65535
+ permit tcp object-group CHECKALT_ERAS_HOSTS eq 443 object-group ATM_LOCAL_HOSTS range 1024 65535
+ deny   ip any any
+ip access-list extended CASH_ADV
+ permit ip any host 10.109.1.130
+ permit ip any host 10.197.1.43
+ permit ip any object-group VERIFONE
+ permit ip any object-group InstantIssue
+ permit ip any object-group DNS
+ deny   ip object-group FMB_LAN any
+ deny   ip any any log
+ip access-list extended TFTP_BLOCK
+ deny   udp any 10.0.0.0 0.255.255.255 eq tftp
+ permit ip any any
+ip access-list extended VRESTRICT
+ deny   tcp any any eq ftp log
+ deny   tcp any any eq 22 log
+ deny   tcp any any eq telnet log
+ deny   tcp any any eq 135 log
+ deny   tcp any any eq 139 log
+ deny   tcp any any eq 445 log
+ deny   tcp any any eq 1433 log
+ deny   tcp any any eq 1521 log
+ deny   tcp any any eq 3306 log
+ deny   tcp any any eq 3389 log
+ deny   tcp any any eq www log
+ permit ip any any
+!
+logging origin-id ip
+logging source-interface Loopback0
+logging host 199.7.244.72
+logging host 199.7.245.72
+ipv6 ioam timestamp
+!
+!
+snmp-server community zju4ZrJ3CrV9tArYOHc5gY0co RO 99
+snmp-server community 6cqMCaTZZY6757hmeNNh9GMRO RO 99
+snmp-server ifindex persist
+snmp-server trap-source Loopback0
+snmp-server source-interface informs Loopback0
+snmp-server location 11900 South Pulaski Road, Alsip, IL  60803
+snmp-server enable traps snmp linkdown linkup coldstart warmstart
+snmp-server enable traps eigrp
+snmp-server enable traps envmon
+snmp-server enable traps bgp state-changes limited
+snmp-server enable traps aaa_server
+snmp-server enable traps config
+snmp-server enable traps hsrp
+snmp-server enable traps cpu threshold
+snmp-server host 10.100.2.230 version 2c 6cqMCaTZZY6757hmeNNh9GMRO 
+snmp-server host 10.109.2.42 version 2c 6cqMCaTZZY6757hmeNNh9GMRO 
+snmp-server host 199.7.244.72 version 2c stiNOCstring4300 
+snmp-server host 199.7.245.72 version 2c stiNOCstring4300 
+tacacs server ACS1
+ address ipv4 10.100.9.22
+ key 7 112E4A34450A535A5C737F
+tacacs server ACS2
+ address ipv4 10.196.9.22
+ key 7 112E4A34450A535A5C737F
+access-list 97 remark SSH
+access-list 97 permit 10.0.0.0 0.255.255.255
+access-list 97 permit 199.7.244.64 0.0.0.63
+access-list 97 permit 199.7.245.64 0.0.0.63
+access-list 97 deny   any log
+access-list 98 remark NTP
+access-list 98 permit 10.255.252.8
+access-list 98 permit 10.255.252.3
+access-list 98 permit 10.255.252.102
+access-list 98 deny   any log
+access-list 99 remark SNMP
+access-list 99 permit 10.100.2.0 0.0.0.255
+access-list 99 permit 10.109.2.0 0.0.0.255
+access-list 99 permit 10.1.199.0 0.0.0.255
+access-list 99 permit 10.197.1.0 0.0.0.255
+access-list 99 permit 10.197.199.0 0.0.0.255
+access-list 99 permit 199.7.244.64 0.0.0.63
+access-list 99 permit 199.7.245.64 0.0.0.63
+access-list 99 deny   any log
+!
+!
+!
+control-plane
+!
+bridge 1 protocol ieee
+!
+voice-port 0/0/0
+ connection plar 82394423
+ description 7082390336
+ station-id name OUTSIDE CALLER
+ station-id number 7082390336
+!
+voice-port 0/0/1
+ connection plar 82394423
+ description 7082390336
+ station-id name OUTSIDE CALLER
+ station-id number 7082390336
+!
+voice-port 0/1/0
+ shutdown
+ station-id name ALSIP-Fax2
+ station-id number 7082393038
+!
+voice-port 0/1/1
+ station-id name ALSIP-Nicor
+ station-id number 7082395427
+!
+voice-port 0/1/2
+ station-id name ALSIP-Fax
+ station-id number 7082393042
+!
+voice-port 0/1/3
+ station-id name ALSIP-CashAdv
+ station-id number 7082395024
+ !
+ !
+ !
+ !
+!
+mgcp behavior rsip-range tgcp-only
+mgcp behavior comedia-role none
+mgcp behavior comedia-check-media-src disable
+mgcp behavior comedia-sdp-force disable
+!
+mgcp profile default
+!
+sccp local GigabitEthernet0/0.101
+sccp ccm 10.197.199.11 identifier 1 priority 1 version 7.0 
+sccp ccm 10.109.196.11 identifier 2 priority 2 version 7.0 
+sccp
+!
+sccp ccm group 1
+ associate ccm 1 priority 1
+ associate ccm 2 priority 2
+ associate profile 10 register ALSIPRSVP
+!
+!
+!
+dspfarm profile 10 mtp  
+ codec g711ulaw
+ codec pass-through
+ rsvp
+ maximum sessions software 100
+ associate application SCCP
+!
+dial-peer voice 100 voip
+ preference 1
+ destination-pattern 951T
+ session target ipv4:10.197.199.11
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+dial-peer voice 101 voip
+ preference 2
+ destination-pattern 951T
+ session target ipv4:10.109.196.11
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+dial-peer voice 102 voip
+ preference 3
+ destination-pattern 951T
+ session target ipv4:10.197.199.10
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+dial-peer voice 110 pots
+ preference 7
+ destination-pattern 95T
+ direct-inward-dial
+ port 0/0/0
+ forward-digits 11
+!
+dial-peer voice 111 pots
+ preference 7
+ destination-pattern 95T
+ direct-inward-dial
+ port 0/0/1
+ forward-digits 11
+!
+dial-peer voice 911 pots
+ preference 1
+ destination-pattern 911
+ clid network-number 7082390336
+ direct-inward-dial
+ port 0/0/0
+ forward-digits 3
+!
+dial-peer voice 912 pots
+ preference 2
+ destination-pattern 911
+ clid network-number 7083896765
+ direct-inward-dial
+ port 0/0/1
+ forward-digits 3
+!
+dial-peer voice 200 pots
+ huntstop
+ max-conn 1
+ destination-pattern 82395427
+ port 0/1/1
+!
+dial-peer voice 201 pots
+ huntstop
+ max-conn 1
+ destination-pattern 82393042
+ port 0/1/2
+!
+dial-peer voice 202 pots
+ huntstop
+ max-conn 1
+ destination-pattern 82395024
+ port 0/1/3
+!
+dial-peer voice 800 voip
+ huntstop
+ preference 1
+ destination-pattern 8.......
+ session target ipv4:10.197.199.11
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay ecm disable
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+dial-peer voice 801 voip
+ huntstop
+ preference 2
+ destination-pattern 8.......
+ session target ipv4:10.109.196.11
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay ecm disable
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+dial-peer voice 802 voip
+ preference 3
+ destination-pattern 8.......
+ session target ipv4:10.197.199.10
+ incoming called-number .
+ voice-class codec 1  
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax-relay ecm disable
+ fax-relay sg3-to-g3
+ fax rate 14400
+ no vad
+!
+!
+num-exp 95911 911
+num-exp 810001911 911
+sip-ua 
+ registrar ipv4:10.114.101.1 expires 600
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+telephony-service
+ mode esrst
+ srst mode auto-provision all
+ srst dn line-mode dual
+ max-ephones 20
+ max-dn 40
+ ip source-address 10.114.101.1 port 2000
+ no service directed-pickup
+ timeouts interdigit 5
+ system message primary Call Manager Fallback
+ dialplan-pattern 1 .T extension-length 8
+ max-conferences 8 gain -6
+ call-forward pattern .T
+ transfer-system full-consult
+ transfer-pattern .T
+!
+!
+ephone-dn  1  dual-line
+ number 82394412
+ description 7082394412
+ name 7082394412
+!
+!
+ephone-dn  2  dual-line
+ number 82394414
+ description 7082394414
+ name 7082394414
+!
+!
+ephone-dn  3  dual-line
+ number 82395000
+ description 82395000
+ name 82395000
+!
+!
+ephone-dn  4  dual-line
+ number 82394413
+ description 7082394413
+ name 7082394413
+!
+!
+ephone-dn  5  dual-line
+ number 82394423
+ description 7082394423
+ name 7082394423
+ call-forward all 95177
+!
+!
+ephone-dn  6  dual-line
+ number 82394410
+ description 7082394410
+ name 7082394410
+!
+!
+ephone-dn  7  dual-line
+ number 82393043
+ description 7082393043
+ name 7082393043
+!
+!
+ephone-dn  8  dual-line
+ number 82393044
+ description 7082393044
+ name 7082393044
+!
+!
+ephone-dn  9  dual-line
+ number 82394425
+ description 7082394425
+ name 7082394425
+!
+!
+ephone-dn  10  dual-line
+ number 82394421
+ description 7082394421
+ name 7082394421
+!
+!
+ephone-dn  11  dual-line
+ number 82394409
+ description 7082394409
+ name 7082394409
+!
+!
+ephone-dn  12  dual-line
+ number 82394422
+ description 7082394422
+ name 7082394422
+!
+!
+ephone-dn  13  dual-line
+ number 82393036
+ description 7082393036
+ name 7082393036
+!
+!
+ephone-dn  14  dual-line
+ number 82394424
+ description 7082394424
+ name 7082394424
+!
+!
+ephone-dn  15  dual-line
+ number 82394411
+ description 7082394411
+ name 7082394411
+!
+!
+ephone-dn  16  dual-line
+ number 82293661
+ description 7082293661
+ name 7082293661
+!
+!
+ephone  2
+ mac-address 001E.F72A.06BE
+ button  1:1
+!
+!
+!
+ephone  3
+ mac-address 0022.905B.4DC7
+ button  1:2 2:3
+!
+!
+!
+ephone  4
+ mac-address 001E.F729.4DEA
+ button  1:4 2:3
+!
+!
+!
+ephone  5
+ mac-address 001A.A1E2.4C65
+ button  1:5
+!
+!
+!
+ephone  6
+ mac-address 001E.F729.4D3B
+ button  1:6 2:3
+!
+!
+!
+ephone  7
+ mac-address 001E.F728.E84B
+ button  1:7
+!
+!
+!
+ephone  8
+ mac-address 001E.F729.407D
+ button  1:8
+!
+!
+!
+ephone  9
+ mac-address 001E.F728.DB95
+ button  1:9
+!
+!
+!
+ephone  10
+ mac-address 001E.F728.D639
+ button  1:10 2:3
+!
+!
+!
+ephone  11
+ mac-address 001E.F729.4E96
+ button  1:11
+!
+!
+!
+ephone  12
+ mac-address 001E.F728.E867
+ button  1:12
+!
+!
+!
+ephone  13
+ mac-address 001E.F729.4D4A
+ button  1:13
+!
+!
+!
+ephone  14
+ mac-address 0023.EB53.7D5A
+ button  1:14 2:13
+!
+!
+!
+ephone  15
+ mac-address 001E.F729.4CF4
+ button  1:15 2:3
+!
+!
+!
+ephone  16
+ mac-address 0008.308B.6D11
+ button  1:13
+!
+!
+!
+ vstack
+banner login ^CC
+************************************ATTENTION*********************************
+This is a First Midwest Bank computer system. This system, including all related
+ equipment, network and network devices, is provided only for authorized FMB use.
+ All electronic communications and any and all information transferred to,
+ received by or stored in this system is the property of FMB.  All individuals, 
+authorized or unauthorized, who access and use this system are subject to having
+ their activities monitored and recorded, expressly consent to such monitoring 
+and that they will not use this system in violation of FMB information security
+ policies.
+***********************************ATTENTION**********************************
+^C
+!
+line con 0
+ session-timeout 60 
+ exec-timeout 30 0
+ password 7 06355C2F581F074A44
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ logging synchronous
+line 2
+ no activation-character
+ no exec
+ transport preferred none
+ transport output ssh
+ stopbits 1
+line 67
+ no activation-character
+ no exec
+ transport preferred ssh
+ transport input ssh
+ transport output ssh
+ stopbits 1
+ speed 9600
+ flowcontrol software
+line vty 0 4
+ session-timeout 60 
+ access-class 97 in
+ exec-timeout 30 0
+ privilege level 15
+ logging synchronous
+ transport input ssh
+line vty 5 15
+ session-timeout 60 
+ access-class 97 in
+ exec-timeout 30 0
+ privilege level 15
+ logging synchronous
+ transport input ssh
+!
+scheduler allocate 20000 1000
+ntp source Loopback0
+ntp access-group peer 98
+ntp server 10.255.252.8
+ntp server 10.255.252.3
+ntp server 10.255.252.102
+!
+end

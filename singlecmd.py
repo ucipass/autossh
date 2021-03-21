@@ -20,7 +20,7 @@ def connect(hostname,ip,port,username,password,command,file):
   #try:
   p = paramiko.SSHClient()
   p.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-  p.connect(ip, port=port, username=username, password=password, timeout=10)
+  p.connect(ip, port=port, username=username, password=password, timeout=10, allow_agent=False, look_for_keys=False)
   stdin, stdout, stderr = p.exec_command(command)
   result = stdout.readlines()
   result = "".join(result)
