@@ -15,8 +15,6 @@ def get_user_pass():
 
 
 def connect(hostname,ip,port,username,password,command,file):
-  #DEBUG
-  print (hostname,ip,port,username,password,command,file)  
   try:
     p = paramiko.SSHClient()
     p.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -26,7 +24,6 @@ def connect(hostname,ip,port,username,password,command,file):
     result = "".join(result)
   except:
     result = "CONNECTION ERROR\n"
-
   return result
 
 
