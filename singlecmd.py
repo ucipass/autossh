@@ -35,9 +35,6 @@ def connect(hostname,ip,port,username,password,command,file):
     f.write(result)
 
 
-
-
-
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file', help='Specify the CSV file for SSH connectivity. Default is hosts.csv in current directory', nargs='?', default="hosts.csv")
