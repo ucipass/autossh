@@ -27,18 +27,15 @@ def connect(hostname,ip,port,username,password,command,file):
   except:
     result = "CONNECTION ERROR\n"
 
-  print(hostname +"("+ip+"):" + command )
-  print("Result:" + result)
-
-  # OPTIONAL SAVE RESULT TO FILE BASED ON ON FILE FIELD IF NOT I WILL BE HOSTNAME.TXT
-  with open( file if file else hostname+".txt" , 'w') as f:
-    f.write(result)
+  return result
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file', help='Specify the CSV file for SSH connectivity. Default is hosts.csv in current directory', nargs='?', default="hosts.csv")
   parser.add_argument('-a', '--auth', help='Ask for usuername/password and use that for SSH authentication instead of provided credentials in the CSV file', action='store_true')
+  parser.add_argument('-q', '--quiet', help='Do not display results', action='store_true')
+  parser.add_argument('-s', '--save', help='Save results to output file as hostname.txt', action='store_true')
   args = parser.parse_args()
   filename = args.file
   localuser = None
@@ -58,4 +55,13 @@ if __name__ == '__main__':
       command  = row['command']
       file     = row['file'] if 'file' in row else row['hostname']+".txt"
 
-      connect( hostname,ip,port,username,password,command,file )
+      result = connect( hostname,ip,port,username,password,command,file )
+      print(hostname +"("+ip+"):" + command )
+      if not args.quiet:
+        print(result)
+      if args.save:
+        with open( file if file else hostname+".txt" , 'w') as f:
+          f.write(result)
+
+
+
